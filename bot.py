@@ -22,16 +22,12 @@ if __name__ == '__main__':
     sensor = Sensor("/dev/ttyACM0", 115200)
     public_period = 1800
     last_report = None
-    k = 0
     while True:
-        k+=1
         sensor.update()
         img = get_image(config["img_url"],
                         auth=(config["login"], config["password"]))
         ib.append(img)
-        # if '48' in sensor.state and sensor.state['48']['move']:
-        if k == 5:
-            k = 0
+        if '48' in sensor.state and sensor.state['48']['move']:
             bot.send_message(config["secret_channel"], 'обнаружено движение')
             print('send gif')
             bot.send_video(config["secret_channel"], ib.gif())
