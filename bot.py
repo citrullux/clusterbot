@@ -24,12 +24,12 @@ if __name__ == '__main__':
     last_report = None
     while True:
         sensor.update()
-        img = get_image(config["img_url"],
-                        auth=(config["login"], config["password"]))
+
+        img = get_image(config["img_url"], (config["login"], config["password"]))
         ib.append(img)
-        if '48' in sensor.state and sensor.state['48']['move']:
+
+        if sensor.state['move']:
             bot.send_message(config["secret_channel"], 'обнаружено движение')
-            print('send gif')
             bot.send_video(config["secret_channel"], ib.gif())
 
         if last_report is None or (time.time() - last_report > public_period):
