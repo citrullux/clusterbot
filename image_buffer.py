@@ -4,7 +4,7 @@ import imageio
 
 def compress_jpeg(image):
     i = io.BytesIO()
-    imageio.imwrite(i, image, format='JPG', quality=10, optimize=True)
+    imageio.imwrite(i, image, format='JPG', quality=50, optimize=True)
     i.seek(0)
     return imageio.imread(i)
 
