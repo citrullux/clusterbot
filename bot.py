@@ -34,6 +34,6 @@ if __name__ == '__main__':
 
         if last_report is None or (time.time() - last_report > public_period):
             bot.send_message(config["public_channel"],
-                             "```%s```" % str(sensor.state),
+                             str(sensor),
                              parse_mode='Markdown')
             last_report = time.time()
