@@ -35,6 +35,13 @@ class Sensor:
             except json.decoder.JSONDecodeError:
                 return self.update()
 
+            for k in self.indicator_names:
+                if k not in data:
+                    return self.update()
+
+            if not data['id'] in self.indexes:
+                return self.update()
+
             index = self.indexes[data['id']]
             self.state['temperature'][index] = data['temperature']
             self.state['humidity'][index] = data['humidity']
