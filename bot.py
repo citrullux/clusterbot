@@ -18,7 +18,7 @@ def get_image(url, auth=()):
 if __name__ == '__main__':
     config = json.load(open('config.json'))
     bot = telebot.TeleBot(config["token"])
-    ib = ImageBuffer(capacity=5)
+    ib = ImageBuffer(capacity=10)
     sensor = Sensor("/dev/ttyACM0", 115200)
     public_period = 1800
     last_report = None
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
         if sensor.state['move']:
             bot.send_message(config["secret_channel"], 'обнаружено движение')
-            bot.send_video(config["secret_channel"], ib.gif())
+            bot.send_video(config["secret_channel"], ib.movie())
 
         if last_report is None or (time.time() - last_report > public_period):
             bot.send_message(config["public_channel"],

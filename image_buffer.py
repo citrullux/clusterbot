@@ -2,13 +2,6 @@ import io
 import imageio
 
 
-def compress_jpeg(image):
-    i = io.BytesIO()
-    imageio.imwrite(i, image, format='JPG', quality=50, optimize=True)
-    i.seek(0)
-    return imageio.imread(i)
-
-
 class ImageBuffer:
     def __init__(self, capacity=5):
         self.capacity = capacity
@@ -17,11 +10,14 @@ class ImageBuffer:
     def append(self, image):
         if len(self.queue) >= self.capacity:
             self.queue.pop(0)
-        compressed = compress_jpeg(image)
-        self.queue.append(compressed)
+        self.queue.append(image)
 
-    def gif(self):
-        gif = io.BytesIO()
-        imageio.mimwrite(gif, self.queue, format="GIF", duration=0.5)
-        gif.seek(0)
-        return gif
+    def movie(self):
+        movie_f = '/tmp/video.mp4'
+        writer = imageio.get_writer(movie_f, fps=5)
+        for im in self.queue:
+            writer.append_data(im)
+        writer.close()
+        with open(movie_f, 'rb') as f:
+            movie = io.BytesIO(f.read())
+        return movie
