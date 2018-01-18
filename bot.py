@@ -22,6 +22,9 @@ if __name__ == '__main__':
     sensor = Sensor("/dev/ttyACM0", 115200)
     public_period = 1800
     last_report = None
+    for _ in range(ib.capacity):
+        img = get_image(config["img_url"], (config["login"], config["password"]))
+        ib.append(img)
     while True:
         sensor.update()
 
