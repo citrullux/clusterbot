@@ -32,10 +32,25 @@ if __name__ == '__main__':
         ib.append(img)
 
         if sensor.state['move']:
-            bot.send_video(config["secret_channel"], ib.movie(), caption='обнаружено движение')
+            sent = False
+            while not sent:
+                try:
+                    bot.send_video(config["secret_channel"], ib.movie(), caption='обнаружено движение')
+                    sent = True
+                except requests.exceptions.ConnectionError as e:
+                    print(e)
+                time.sleep(0.5)
+
 
         if last_report is None or (time.time() - last_report > public_period):
-            bot.send_message(config["public_channel"],
+            sent = False
+            while not sent:
+                try:
+                    bot.send_message(config["public_channel"],
                              str(sensor),
                              parse_mode='Markdown')
+                    sent = True
+                except requests.exceptions.ConnectionError as e:
+                    print(e)
+                time.sleep(0.5)
             last_report = time.time()
