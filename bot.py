@@ -32,8 +32,7 @@ if __name__ == '__main__':
         ib.append(img)
 
         if sensor.state['move']:
-            bot.send_message(config["secret_channel"], 'обнаружено движение')
-            bot.send_video(config["secret_channel"], ib.movie())
+            bot.send_video(config["secret_channel"], ib.movie(), caption='обнаружено движение')
 
         if last_report is None or (time.time() - last_report > public_period):
             bot.send_message(config["public_channel"],
