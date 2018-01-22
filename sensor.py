@@ -62,4 +62,3 @@ class Sensor:
              "Задымлённость: %s %s" % tuple(self.state['smoke']),
              "Движение: %s" % self.state['move']]
         return "\n".join(s)
-
