@@ -3,6 +3,7 @@ import telebot
 import time
 import json
 import requests
+from threading import Thread
 
 from camera import Camera
 from sensor import Sensor
@@ -16,10 +17,26 @@ if __name__ == '__main__':
     sensor = Sensor("/dev/ttyACM0", 115200)
     public_period = 1800
     last_report = None
-    while True:
-        sensor.update()
-        camera.shot_to_buffer()
 
+    def camera_loop():
+        while True:
+            print("Update camera")
+            camera.shot_to_buffer()
+            time.sleep(0.5)
+
+    def sensor_loop():
+        while True:
+            print("Update sensor")
+            sensor.update()
+
+    camera_thread = Thread(target=camera_loop)
+    sensor_thread = Thread(target=sensor_loop)
+    camera_thread.setDaemon(True)
+    sensor_thread.setDaemon(True)
+    camera_thread.start()
+    sensor_thread.start()
+
+    while True:
         if sensor.state['move']:
             sent = False
             while not sent:
@@ -42,3 +59,4 @@ if __name__ == '__main__':
                     print(e)
                 time.sleep(0.5)
             last_report = time.time()
+        time.sleep(0.5)
