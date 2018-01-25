@@ -38,6 +38,7 @@ if __name__ == '__main__':
 
     while True:
         if sensor.state['move']:
+            time.sleep(1) # make more shots with detected objects
             sent = False
             while not sent:
                 try:
