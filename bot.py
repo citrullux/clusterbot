@@ -9,6 +9,20 @@ from camera import Camera
 from sensor import Sensor
 
 
+def safe_send(attempts, f, *args, **kwargs):
+    sent = False
+    for _ in range(attempts):
+        try:
+            f(*args, **kwargs)
+            sent = True
+        except requests.exceptions.ConnectionError as e:
+            print(e)
+        if sent:
+            break
+        time.sleep(0.5)
+    return sent
+
+
 if __name__ == '__main__':
     config = json.load(open('config.json'))
     bot = telebot.TeleBot(config["token"])
@@ -36,27 +50,13 @@ if __name__ == '__main__':
 
     while True:
         if sensor.state['move']:
-            time.sleep(1) # make more shots with detected objects
+            time.sleep(1)  # make more shots with detected objects
             movie = camera.movie()
-            sent = False
-            while not sent:
-                try:
-                    bot.send_video(config["secret_channel"], movie,
-                                   caption='обнаружено движение')
-                    sent = True
-                except requests.exceptions.ConnectionError as e:
-                    print(e)
-                time.sleep(0.5)
+            safe_send(5, bot.send_video, config["secret_channel"], movie,
+                      caption='обнаружено движение')
 
         if last_report is None or (time.time() - last_report > public_period):
-            sent = False
-            while not sent:
-                try:
-                    bot.send_message(config["public_channel"], str(sensor),
-                                     parse_mode='Markdown')
-                    sent = True
-                except requests.exceptions.ConnectionError as e:
-                    print(e)
-                time.sleep(0.5)
+            safe_send(5, bot.send_message, config["public_channel"],
+                      str(sensor), parse_mode='Markdown')
             last_report = time.time()
         time.sleep(0.5)
