@@ -39,10 +39,11 @@ if __name__ == '__main__':
     while True:
         if sensor.state['move']:
             time.sleep(1) # make more shots with detected objects
+            movie = camera.movie()
             sent = False
             while not sent:
                 try:
-                    bot.send_video(config["secret_channel"], camera.movie(),
+                    bot.send_video(config["secret_channel"], movie,
                                    caption='обнаружено движение')
                     sent = True
                 except requests.exceptions.ConnectionError as e:
