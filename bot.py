@@ -29,10 +29,8 @@ if __name__ == '__main__':
             print("Update sensor")
             sensor.update()
 
-    camera_thread = Thread(target=camera_loop)
-    sensor_thread = Thread(target=sensor_loop)
-    camera_thread.setDaemon(True)
-    sensor_thread.setDaemon(True)
+    camera_thread = Thread(target=camera_loop, daemon=True)
+    sensor_thread = Thread(target=sensor_loop, daemon=True)
     camera_thread.start()
     sensor_thread.start()
 
