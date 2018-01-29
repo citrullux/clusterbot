@@ -22,7 +22,6 @@ class Sensor:
             self.update()
 
     def update(self):
-        self.state['move'] = False
         line = self.ser.readline().decode("utf-8")
         while not line.startswith('{"id"'):
             line = self.ser.readline().decode("utf-8")
@@ -46,6 +45,7 @@ class Sensor:
             self.state['temperature'][index] = data['temperature']
             self.state['humidity'][index] = data['humidity']
             if data['id'] == '48':
+                self.state['move'] = False
                 if data['move']:
                     self.move_detected += 1
                 else:

@@ -34,13 +34,11 @@ if __name__ == '__main__':
 
     def camera_loop():
         while True:
-            print("Update camera")
             camera.shot_to_buffer()
             time.sleep(0.5)
 
     def sensor_loop():
         while True:
-            print("Update sensor")
             sensor.update()
 
     camera_thread = Thread(target=camera_loop, daemon=True)
@@ -50,6 +48,7 @@ if __name__ == '__main__':
 
     while True:
         if sensor.state['move']:
+            sensor.state['move'] = False
             time.sleep(1)  # make more shots with detected objects
             movie = camera.movie()
             safe_send(5, bot.send_video, config["secret_channel"], movie,
@@ -59,4 +58,4 @@ if __name__ == '__main__':
             safe_send(5, bot.send_message, config["public_channel"],
                       str(sensor), parse_mode='Markdown')
             last_report = time.time()
-        time.sleep(0.5)
+        time.sleep(0.25)
