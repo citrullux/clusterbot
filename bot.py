@@ -33,6 +33,9 @@ if __name__ == '__main__':
     power = Power()
     public_period = 1800
     last_report = None
+    bad_voltage_period = 1800
+    last_bad_voltage = None
+    possible_powerless = False
 
     def camera_loop():
         while True:
@@ -66,21 +69,46 @@ if __name__ == '__main__':
         if power.should_be_enabled():
             power.enable()
         if power.possible_powerless():
-            safe_send(5, bot.send_message, config["secret_channel_power"],
-                    '*Внимание, возможен обрыв питания*\n'
-                    'Если кто-то есть на месте, проверьте кластерную'
-                    '%s' % power, parse_mode='Markdown')
+            if not possible_powerless:
+                safe_send(5, bot.send_message, config["secret_channel_power"],
+                        '*Внимание, возможен обрыв питания*\n'
+                        'Если кто-то есть на месте, проверьте кластерную\n'
+                        '%s' % power, parse_mode='Markdown')
+                possible_powerless = True
+        else:
+            if possible_powerless:
+                safe_send(5, bot.send_message, config["secret_channel_power"],
+                        '*Помнишь я визжал про обрыв питания?'
+                        'Так вот, теперь вроде всё норм*\n'
+                        '%s' % power, parse_mode='Markdown')
+                possible_powerless = False
         if power.should_be_disabled():
             safe_send(5, bot.send_message, config["secret_channel_power"],
                     '*Начата процедура отключения*\n'
                     '%s' % power, parse_mode='Markdown')
             power.disable()
         if power.bad_voltage():
-            safe_send(5, bot.send_message, config["secret_channel_power"],
-                    '*Напряжение за пределами нормальных значений*\n'
-                    '%s' % power, parse_mode='Markdown')
+            if (last_bad_voltage is None or
+                   (time.time() - last_bad_voltage > bad_voltage_period)):
+                safe_send(5, bot.send_message, config["secret_channel_power"],
+                        '*Напряжение за пределами нормальных значений*\n'
+                        '%s' % power, parse_mode='Markdown')
+                if last_bad_voltage is None:
+                    last_bad_voltage = time.time()
+                else:
+                    last_bad_voltage += bad_voltage_period
+        else:
+            if not last_bad_voltage is None:
+                safe_send(5, bot.send_message, config["secret_channel_power"],
+                        '*Напряжение вернулось в норму*\n'
+                        '%s' % power, parse_mode='Markdown')
+                last_bad_voltage = None
+
         if last_report is None or (time.time() - last_report > public_period):
             safe_send(5, bot.send_message, config["public_channel"],
                       '%s\n\n%s' % (sensor, power), parse_mode='Markdown')
-            last_report = time.time()
+            if last_report is None:
+                last_report = time.time()
+            else:
+                last_report += public_period
         time.sleep(0.25)
