@@ -61,7 +61,7 @@ if __name__ == '__main__':
     power_thread.start()
 
     while True:
-        if max(filter(bool, sensor.temperature)) > 30:
+        if max(filter(bool, sensor.state["temperature"])) > 30:
             if (last_bad_temperature is None or
                    (time.time() - last_bad_temperature > bad_temperature_period)):
                 safe_send(5, bot.send_message, config["secret_channel_power"],
