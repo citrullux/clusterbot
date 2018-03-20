@@ -35,6 +35,8 @@ if __name__ == '__main__':
     last_report = None
     bad_voltage_period = 1800
     last_bad_voltage = None
+    bad_temperature_period = 1800
+    last_bad_temperature = None
     possible_powerless = False
 
     def camera_loop():
@@ -59,6 +61,24 @@ if __name__ == '__main__':
     power_thread.start()
 
     while True:
+        if max(filter(bool, sensor.temperature)) > 30:
+            if (last_bad_temperature is None or
+                   (time.time() - last_bad_temperature > bad_temperature_period)):
+                safe_send(5, bot.send_message, config["secret_channel_power"],
+                        '*Температура за пределами нормальных значений*\n'
+                        '%s' % power, parse_mode='Markdown')
+                if last_bad_temperature is None:
+                    last_bad_temperature = time.time()
+                else:
+                    last_bad_temperature += bad_temperature_period
+        else:
+            if not last_bad_temperature is None:
+                safe_send(5, bot.send_message, config["secret_channel_power"],
+                        '*Температура вернулось в норму*\n'
+                        '%s' % power, parse_mode='Markdown')
+                last_bad_temperature = None
+
+
         if sensor.state['move']:
             sensor.state['move'] = False
             time.sleep(1)  # make more shots with detected objects
